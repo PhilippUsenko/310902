@@ -23,19 +23,7 @@ fun app(read: () -> String?) {
         when (i) {
             1 -> println(student.toString())
             2 -> {
-                when (tailor.getOrger(student.makeOrder(), read)) {
-                    1 -> {
-                        if (tailor.orderPants(read)) {
-                            student.reseiveClothes(tailor.suePants())
-                        }
-                    }
-
-                    2 -> {
-                        if (tailor.orderShirt(read)) {
-                            student.reseiveClothes(tailor.sueShirt())
-                        }
-                    }
-                }
+                tailor.getOrger(student.makeOrder(), read)
             }
             0 -> return
         }

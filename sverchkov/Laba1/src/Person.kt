@@ -13,12 +13,14 @@ class Student(
     Waist: Double = 0.0
 ) : Person(Name, Height, Chest, Waist) {
     var clothes: MutableList<Clothes> = mutableListOf()
+
     fun makeOrder() = this
-    fun orderPants(read: () -> String?): Double {
+    fun getPantsMeasurements(read: () -> String?): Double {
         println("Введите длину штанов сантиметрах")
         var length = 0.0
         while(true) {
             try {
+
                 length = read()?.toDouble() ?: 0.0
                 if (length > 0) break;
             } catch (e: Exception) {
@@ -28,7 +30,7 @@ class Student(
         return length
     }
 
-    fun orderShirt(read: () -> String?): Double {
+    fun getShirtMeasurements(read: () -> String?): Double {
         println("Введите обхват плеч в сантиметрах")
         var shoulderGirth = 0.0
         while(true) {
@@ -64,8 +66,8 @@ class Tailor : Person() {
         Fabric("Кожа", "Чёрный", 10.0)
     )
 
-    fun getOrger(student: Student, read: () -> String?): Int {
-        client = student
+    fun getOrger(student: Student, read: () -> String?) {
+        client = student.makeOrder()
         println("Что шьём?\n1 - Штаны\n2 - Рубашка")
         var i = 0
         do {
@@ -76,25 +78,33 @@ class Tailor : Person() {
             }
         } while (i != 1 && i != 2)
 
-        if (i == 1) takePantsMeasurements(read)
-        else takeShirtMeasurements(read)
-
-        return i
+        if (i == 1){
+            takePantsMeasurements(read)
+            if (orderPants(read)) {
+                client.reseiveClothes(suePants())
+            }
+        }
+        else{
+            takeShirtMeasurements(read)
+            if (orderShirt(read)) {
+                client.reseiveClothes(sueShirt())
+            }
+        }
     }
 
     private fun takeShirtMeasurements(read: () -> String?) {
-        this.measurements = client.orderShirt(read)
+        this.measurements = client.getShirtMeasurements(read)
     }
 
     private fun takePantsMeasurements(read: () -> String?) {
-        this.measurements = client.orderPants(read)
+        this.measurements = client.getPantsMeasurements(read)
     }
 
-    fun orderPants(read: () -> String?): Boolean {
+    private fun orderPants(read: () -> String?): Boolean {
         val length = measurements
         val amountOfFabric = length * client.Waist / 10000
 
-        val potentialFabrics = fabrics.filter { amountOfFabric <= it.amount }
+        val potentialFabrics = fabrics.filter { amountOfFabric <= it.getAmount() }
         if (potentialFabrics.isEmpty()) {
             println("Недостаточно материала")
             return false
@@ -117,11 +127,11 @@ class Tailor : Person() {
         return true
     }
 
-    fun orderShirt(read: () -> String?): Boolean {
+    private fun orderShirt(read: () -> String?): Boolean {
         val shoulderGirth = measurements
         val amountOfFabric =
             ((client.Chest + client.Waist) * client.Height / 4 + shoulderGirth * client.Height / 10) / 10000
-        val potentialFabrics = fabrics.filter { amountOfFabric <= it.amount }
+        val potentialFabrics = fabrics.filter { amountOfFabric <= it.getAmount() }
 
         if (potentialFabrics.isEmpty()) {
             println("Недостаточно материала")
@@ -146,6 +156,6 @@ class Tailor : Person() {
         return true
     }
 
-    fun suePants() = Pants(order.parameter, client.Waist, order.fabric)
-    fun sueShirt() = Shirt(order.parameter, client.Chest, client.Waist, order.fabric)
+    private fun suePants() = Pants(order.parameter, client.Waist, order.fabric)
+    private fun sueShirt() = Shirt(order.parameter, client.Chest, client.Waist, order.fabric)
 }
