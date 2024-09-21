@@ -1,7 +1,19 @@
 package org.example
 
-class Company(val title: String, var goals: Int, var budget: Long) {
+class Company(private val title: String, private var goals: Int, private var budget: Long) {
     val taskCost = 2000
+    fun getTitle(): String {
+        return title
+    }
+    fun getGoals(): Int {
+        return goals
+    }
+    fun setGoals(a: Int){
+        goals+=a
+    }
+    fun setBudget(a: Int){
+        budget+=a
+    }
     fun hireWorker(x: Boolean): Worker {
 
         println("Введите имя сотрудника: ")
@@ -35,8 +47,10 @@ class Company(val title: String, var goals: Int, var budget: Long) {
             }
         }
     }
-
-    fun payMoney(salary: Int): Int {
+    fun askingForSalary(w:Worker){
+        w.money += payMoney(w.mySalary)
+    }
+    private fun payMoney(salary: Int): Int {
         println("Заработал ли сотрудник деньги?(true/false)")
         var b: Boolean
         do {
@@ -68,14 +82,14 @@ abstract class Worker(val name: String, var money: Int, var mySalary: Int) {
 
 class Programmer(name: String, money: Int, mySalary: Int) : Worker(name, money, mySalary) {
     override fun getPaid(c: Company) {
-        money += c.payMoney(mySalary)
+        c.askingForSalary(this)
     }
 
     fun doTask(c: Company) {
-        if (c.goals > 0) {
-            c.goals--
+        if (c.getGoals() > 0) {
+            c.setGoals(-1)
             println("Код пишется...")
-            c.budget += c.taskCost // константная прибыль за 1 выполненную задачу
+            c.setBudget(c.taskCost)// константная прибыль за 1 выполненную задачу
             println("Задача выполнена")
         } else {
             println("Нет задач")
@@ -93,7 +107,7 @@ class Programmer(name: String, money: Int, mySalary: Int) : Worker(name, money, 
 
 class Director(name: String, money: Int, mySalary: Int) : Worker(name, money, mySalary) {
     override fun getPaid(c: Company) {
-        money += c.payMoney(mySalary)
+        c.askingForSalary(this)
     }
 
     fun controlCompany(c: Company) {
@@ -106,7 +120,7 @@ class Director(name: String, money: Int, mySalary: Int) : Worker(name, money, my
                 println("Неверный ввод")
             }
         } while (a <= 0 || a > 100)
-        c.goals += a
+        c.setGoals(a)
     }
 
     fun giveBonus(a: Programmer) {
@@ -156,7 +170,7 @@ class Director(name: String, money: Int, mySalary: Int) : Worker(name, money, my
 
 class Janitor(name: String, money: Int, mySalary: Int) : Worker(name, money, mySalary) {
     override fun getPaid(c: Company) {
-        money += c.payMoney(mySalary)
+        c.askingForSalary(this)
     }
 
     fun clean() {
